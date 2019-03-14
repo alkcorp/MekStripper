@@ -3,6 +3,7 @@ package net.alkalus.mod.mekstrip;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -12,6 +13,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import mekanism.common.MekanismBlocks;
 import mekanism.common.MekanismItems;
+import mekanism.common.recipe.RecipeHandler.Recipe;
 import mekanism.common.util.RecipeUtils;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -45,6 +47,9 @@ public class CommonProxy {
 		List<Field> aBlocks = getFields(MekanismBlocks.class);
 		removeRecipeFromMap(aItems, 0);
 		removeRecipeFromMap(aBlocks, 1);		
+		for (Recipe r : Recipe.values()) {
+			emptyMekRecipeMap(r);
+		}		
 	}
 
 	public void removeRecipeFromMap(List<Field> aData, int type) {
@@ -69,6 +74,20 @@ public class CommonProxy {
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 				}
 			}
+		}
+	}
+	
+	public void emptyMekRecipeMap(Recipe aMap) {
+		try {
+			Field aRecipeField = Class.forName("mekanism.common.recipe.RecipeHandler.Recipe").getDeclaredField("recipes");
+			aRecipeField.setAccessible(true);
+			HashMap recipes;
+			recipes = (HashMap) aRecipeField.get(aMap);
+			if (recipes != null) {
+				recipes.clear();
+			}
+		} catch (NoSuchFieldException | SecurityException | ClassNotFoundException | IllegalArgumentException
+				| IllegalAccessException e) {
 		}
 	}
 	
